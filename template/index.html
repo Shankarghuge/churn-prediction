@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block body %}
+     <!-- Masthead-->
+        <header class="masthead text-white text-center" style="background: linear-gradient(135deg, #004d4d 0%, #006666 50%, #008080 100%); box-shadow: 0 8px 32px rgba(0,0,0,0.3); border-bottom: 4px solid #00b3b3; position: relative; overflow: hidden;">
+            <!-- Animated background decoration -->
+            <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 30% 40%, rgba(0,255,255,0.05) 0%, transparent 60%); animation: pulseGlow 8s ease-in-out infinite;"></div>
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, #00ffcc, #00ccff, #00ffcc); opacity: 0.6;"></div>
+            
+            <div class="container d-flex align-items-center flex-column" style="position: relative; z-index: 2; padding: 2rem 0;">
+                <!-- Masthead Avatar Image-->
+                <img class="masthead-avatar mb-5" src="static/assets/img/portfolio/churn-rate.png" alt="Churn Prediction Icon" style="width: 180px; height: 180px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.3); box-shadow: 0 0 40px rgba(0,255,200,0.3), 0 0 80px rgba(0,255,200,0.1); transition: transform 0.3s ease; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.3));" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" />
+                
+                <!-- Masthead Heading-->
+                <h1 class="masthead-heading text-uppercase mb-0" style="font-size: 4.5rem; font-weight: 800; letter-spacing: 8px; text-shadow: 0 4px 20px rgba(0,0,0,0.3); background: linear-gradient(180deg, #ffffff 0%, #b3ffff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; position: relative;">
+                    Churn Prediction
+                    <span style="position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 60%; height: 3px; background: linear-gradient(90deg, transparent, #00ffcc, transparent); -webkit-text-fill-color: initial;"></span>
+                </h1>
+                
+                <!-- Icon Divider-->
+                <div class="divider-custom divider-light" style="margin: 2rem 0; width: 100%; max-width: 400px;">
+                    <div class="divider-custom-line" style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent); height: 2px; flex: 1;"></div>
+                    <div class="divider-custom-icon" style="color: #00ffcc; font-size: 2rem; padding: 0 1.5rem; text-shadow: 0 0 30px rgba(0,255,200,0.4);"><i class="fas fa-star"></i></div>
+                    <div class="divider-custom-line" style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent); height: 2px; flex: 1;"></div>
+                </div>
+                
+                <!-- Masthead Subheading (commented out, but kept for structure) -->
+                {% comment %} <p class="masthead-subheading font-weight-light mb-0">Early Detection, Better Protection – Fighting Gastric Cancer Smarter.</p> {% endcomment %}
+            </div>
+            
+            <!-- Animated floating particles -->
+            <style>
+                @keyframes pulseGlow {
+                    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.6; }
+                    50% { transform: scale(1.1) rotate(3deg); opacity: 1; }
+                }
+                @keyframes floatParticle {
+                    0% { transform: translateY(0px) translateX(0px); opacity: 0; }
+                    20% { opacity: 0.3; }
+                    80% { opacity: 0.3; }
+                    100% { transform: translateY(-100px) translateX(20px); opacity: 0; }
+                }
+                .masthead {
+                    position: relative;
+                    padding: 5rem 0 4rem 0;
+                    min-height: 80vh;
+                    display: flex;
+                    align-items: center;
+                }
+                .masthead-avatar {
+                    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                }
+                .masthead-avatar:hover {
+                    transform: scale(1.08) rotate(-3deg);
+                    border-color: rgba(0,255,200,0.6);
+                    box-shadow: 0 0 60px rgba(0,255,200,0.4), 0 0 120px rgba(0,255,200,0.15);
+                }
+                .masthead-heading {
+                    transition: all 0.3s ease;
+                }
+                .masthead-heading:hover {
+                    transform: scale(1.02);
+                }
+                .divider-custom {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .divider-custom-line {
+                    height: 2px;
+                    flex: 1;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                }
+                .divider-custom-icon {
+                    padding: 0 1.5rem;
+                    font-size: 2rem;
+                    color: #00ffcc;
+                    text-shadow: 0 0 30px rgba(0,255,200,0.3);
+                }
+                @media (max-width: 768px) {
+                    .masthead-heading {
+                        font-size: 2.8rem !important;
+                        letter-spacing: 4px !important;
+                    }
+                    .masthead-avatar {
+                        width: 140px !important;
+                        height: 140px !important;
+                    }
+                }
+                @media (max-width: 480px) {
+                    .masthead-heading {
+                        font-size: 2rem !important;
+                        letter-spacing: 2px !important;
+                    }
+                    .masthead-avatar {
+                        width: 100px !important;
+                        height: 100px !important;
+                    }
+                }
+            </style>
+        </header>
+{% endblock body %}

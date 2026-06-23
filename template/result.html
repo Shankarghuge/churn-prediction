@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Churn Prediction Results{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+  body {
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+  }
+
+  .header-title {
+    font-weight: 700;
+    color: #00d4ff;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+    margin-top:50px;
+  }
+
+  .card-glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+    transition: all 0.4s ease;
+  }
+
+  .card-glass:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+  }
+
+  .metric-card {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 15px;
+    padding: 25px;
+    color: white;
+    text-align: center;
+    transition: 0.3s;
+  }
+
+  .metric-card:hover {
+    transform: scale(1.05);
+  }
+
+  .btn-download {
+    background: linear-gradient(45deg, #ff512f, #dd2476);
+    border: none;
+    border-radius: 50px;
+    padding: 14px 36px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s;
+  }
+
+  .btn-download:hover {
+    transform: translateY(-3px) scale(1.1);
+    background: linear-gradient(45deg, #dd2476, #ff512f);
+  }
+
+  .chart-container {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .chart-title {
+    color: #00ffcc;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+  }
+
+  #visualizations-section {
+    display: none;
+  }
+
+  .show-btn {
+    background: linear-gradient(45deg, #00d4ff, #00ffcc);
+    color: #000;
+    font-weight: 700;
+    padding: 16px 40px;
+    font-size: 1.2rem;
+    border-radius: 50px;
+    transition: all 0.4s;
+  }
+
+  .show-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- CRITICAL: Load Plotly FIRST -->
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+<!-- Hidden CSRF Token for JavaScript -->
+<form id="csrf-form" style="display: none;">
+  {% csrf_token %}
+</form>
+
+<div class="container py-5">
+  <div class="text-center mb-5">
+    <h1 class="header-title display-4 mb-3">
+      <i class="fas fa-brain me-3"></i>AI Churn Prediction Results
+    </h1>
+    <p class="lead text-light opacity-75">Advanced analytics powered by Machine Learning & Deep Learning</p>
+  </div>
+
+  <!-- Accuracy Metrics -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-6">
+      <div class="metric-card">
+        <h5><i class="fas fa-tree me-2"></i>Random Forest Model</h5>
+        <h2 class="mb-0">{{ rf_acc }}%</h2>
+        <small>Accuracy Score</small>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="metric-card" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+        <h5><i class="fas fa-network-wired me-2"></i>Neural Network</h5>
+        <h2 class="mb-0">{{ dl_acc }}%</h2>
+        <small>Accuracy Score</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row g-4 mb-5 text-center">
+    <div class="col-md-4">
+      <div class="card-glass p-4">
+        <h5><i class="fas fa-users text-info"></i> Total Customers</h5>
+        <h3 class="text-white fw-bold">{{ total|default:"0" }}</h3>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card-glass p-4">
+        <h5><i class="fas fa-user-times text-danger"></i> Predicted to Churn</h5>
+        <h3 class="text-danger fw-bold">{{ churned|default:"0" }}</h3>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card-glass p-4">
+        <h5><i class="fas fa-user-check text-success"></i> Retained</h5>
+        <h3 class="text-success fw-bold">{{ retained|default:"0" }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Show Visualizations Button -->
+  <div class="text-center my-5">
+    <button id="showChartsBtn" class="btn show-btn btn-lg shadow-lg">
+      <i class="fas fa-chart-line me-3"></i> Show All Visualizations
+    </button>
+  </div>
+
+  <!-- Charts Section -->
+  <div id="visualizations-section">
+    <h2 class="text-center text-light mb-4 fw-bold">
+      <i class="fas fa-chart-line me-3"></i>Comprehensive Data Visualizations
+    </h2>
+
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="chart-container card-glass">
+          <h4 class="chart-title"><i class="fas fa-chart-pie"></i> Churn Rate Distribution (Pie)</h4>
+          {{ pie_chart|safe }}
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="chart-container card-glass">
+          <h4 class="chart-title"><i class="fas fa-chart-bar"></i> Churned vs Retained</h4>
+          {{ bar_chart|safe }}
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="chart-container card-glass">
+          <h4 class="chart-title"><i class="fas fa-chart-column"></i> Customer Tenure Distribution</h4>
+          {{ histogram|safe }}
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="chart-container card-glass">
+          <h4 class="chart-title"><i class="fas fa-circle-dot"></i> Age vs Balance (by Churn Risk)</h4>
+          {{ scatter|safe }}
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="chart-container card-glass">
+          <h4 class="chart-title"><i class="fas fa-box"></i> Balance Distribution by Churn</h4>
+          {{ box_plot|safe }}
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="chart-container card-glass">
+          <h4 class="chart-title"><i class="fas fa-chart-area"></i> Cumulative Churn Trend</h4>
+          {{ area_chart|safe }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="text-center mt-5">
+    <a href="{% url 'download_churn_customers' %}" class="btn btn-download btn-lg shadow-lg me-3">
+      <i class="fas fa-download me-2"></i> Download Excel
+    </a>
+
+    <button class="btn btn-download btn-lg shadow-lg" data-bs-toggle="modal" data-bs-target="#emailModal">
+      <i class="fas fa-envelope me-2"></i> Send Email Report
+    </button>
+  </div>
+
+  <!-- Email Modal -->
+  <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="emailModalLabel">Send Churn Report via Email</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label mb-3"><strong>Select Customer Type:</strong></label>
+          
+          <select id="customerTypeSelect" class="form-select form-select-lg mb-4">
+            <option value="">-- Choose Type --</option>
+            <option value="bank">🏦 Bank Customers</option>
+            <option value="ecommerce">🛒 E-commerce Customers</option>
+            <option value="telecom">📱 Telecom Customers</option>
+          </select>
+
+          <small class="text-muted">Selecting any option will send the email immediately.</small>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// Show Charts
+document.getElementById('showChartsBtn').addEventListener('click', function() {
+  const vizSection = document.getElementById('visualizations-section');
+  vizSection.style.display = 'block';
+  vizSection.scrollIntoView({ behavior: 'smooth' });
+  this.innerHTML = `<i class="fas fa-check me-3"></i> Visualizations Loaded`;
+  this.disabled = true;
+});
+
+// Email Templates
+const templates = {
+  bank: "Dear Team,\n\nPlease find the attached churn analysis report for our Bank customers. Key insights:\n- High churn observed in customers with low tenure and high balance.\n- Recommended retention strategies: Loyalty bonuses, personalized offers.\n\nBest Regards,\nAI Churn Prediction System",
+  
+  ecommerce: "Dear Stakeholders,\n\nHere is the churn prediction report for E-commerce customers.\n- Major churn drivers: Low purchase frequency and poor delivery experience.\n- Suggested actions: Targeted discounts and improved customer support.\n\nThank you,\nAI Analytics Team",
+  
+  telecom: "Dear Management,\n\nChurn Analysis Report for Telecom Customers is ready.\n- High churn in prepaid users with high monthly charges.\n- Recommendation: Introduce better data plans and retention campaigns.\n\nRegards,\nChurn Prediction System"
+};
+
+// Get CSRF Token
+function getCSRFToken() {
+  return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
+// Send Email on Select
+document.getElementById('customerTypeSelect').addEventListener('change', function() {
+  const type = this.value;
+  if (!type) return;
+
+  const message = templates[type];
+  const typeName = this.options[this.selectedIndex].text;
+
+  if (confirm(`Send ${typeName} churn report email?`)) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/send-email/';
+
+    // CSRF Token
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = getCSRFToken();
+    form.appendChild(csrfInput);
+
+    // Message
+    const msgInput = document.createElement('input');
+    msgInput.type = 'hidden';
+    msgInput.name = 'message';
+    msgInput.value = message;
+    form.appendChild(msgInput);
+
+    // Customer Type
+    const typeInput = document.createElement('input');
+    typeInput.type = 'hidden';
+    typeInput.name = 'customer_type';
+    typeInput.value = type;
+    form.appendChild(typeInput);
+
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  this.value = '';
+});
+</script>
+
+{% endblock %}

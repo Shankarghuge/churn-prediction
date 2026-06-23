@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>{% block title %}Churn Prediction{% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/favicon.ico' %}" />
+
+    <!-- Font Awesome -->
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
+
+    <!-- Bootstrap + Theme CSS -->
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+
+    <!-- SweetAlert -->
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <!-- CRITICAL: Plotly.js must load early for charts to work -->
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+    <!-- Custom CSS Block (for result.html) -->
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body id="page-top">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg bg-secondary text-uppercase fixed-top" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand" href="/">Churn Prediction</a>
+            <button class="navbar-toggler text-uppercase font-weight-bold bg-primary text-white rounded" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive"
+                aria-expanded="false" aria-label="Toggle navigation">
+                Menu <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item mx-0 mx-lg-1">
+                            <a class="nav-link py-3 px-0 px-lg-3 rounded" href="{% url 'log_out' %}">Logout</a>
+                        </li>
+                    {% else %}
+                     <li class="nav-item mx-0 mx-lg-1">
+                            <a class="nav-link py-3 px-0 px-lg-3 rounded" href="/">Home</a>
+                        </li>
+                        <li class="nav-item mx-0 mx-lg-1">
+                            <a class="nav-link py-3 px-0 px-lg-3 rounded" href="{% url 'register' %}">Register</a>
+                        </li>
+                        <li class="nav-item mx-0 mx-lg-1">
+                            <a class="nav-link py-3 px-0 px-lg-3 rounded" href="{% url 'log_in' %}">Login</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SweetAlert Messages -->
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            <script>swal("{{ message }}", "", "success");</script>
+        {% elif message.tags == 'error' or message.tags == 'danger' %}
+            <script>swal("{{ message }}", "", "error");</script>
+        {% elif message.tags == 'warning' %}
+            <script>swal("{{ message }}", "", "warning");</script>
+        {% else %}
+            <script>swal("{{ message }}", "", "info");</script>
+        {% endif %}
+    {% endfor %}
+
+    <!-- Main Content Block -->
+    {% block body %}
+    {% endblock %}
+
+    <!-- Copyright -->
+    <div class="copyright py-4 text-center text-white bg-dark">
+        <div class="container mt-5">
+            <small>Copyright © Churn Prediction 2025 — Powered by AI</small>
+        </div>
+    </div>
+
+    <!-- Bootstrap + Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/scripts.js' %}"></script>
+
+    <!-- Extra JS Block (for future use) -->
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>
